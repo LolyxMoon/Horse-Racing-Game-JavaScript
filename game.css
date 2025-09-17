@@ -3,23 +3,64 @@ Assignment: Javascript Assignment
 Filename: game.css
 @author: KITSANTAS FOTIOS (17421808)
 Date: 30/04/17
+Modified: Para soportar 50 caballos con pista ampliada y vista mejorada
 */
 
-body {background-image: url(images/bg.png); margin: 0; padding: 0; font-family: calibri, sans-serif;}
+body {
+    background-image: url(images/bg.png); 
+    margin: 0; 
+    padding: 0; 
+    font-family: calibri, sans-serif;
+    overflow: hidden; /* Prevenir scroll del body */
+}
 
+/* CONTENEDOR PRINCIPAL CON VIEWPORT */
+.race-viewport {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
 
-aside {display: none; width: 200px; position: fixed; height: 100vh; left: 100%; margin-left: -240px; background-color: #ddd; border-left: 5px solid #bbb; padding: 20px;}
+/* CONTENEDOR DE CÁMARA MOVIBLE */
+.camera-container {
+    position: absolute;
+    width: 300vw; /* Ancho extendido para la pista larga */
+    height: 200vh; /* Alto para todos los caballos */
+    transition: transform 0.5s ease-out;
+    transform-origin: left top;
+}
+
+/* Clases para animación de cámara */
+.camera-follow {
+    animation: cameraVerticalScan 20s ease-in-out infinite;
+}
+
+@keyframes cameraVerticalScan {
+    0% { transform: translateY(0) scale(0.8); }
+    25% { transform: translateY(-20vh) scale(0.8); }
+    50% { transform: translateY(-40vh) scale(0.8); }
+    75% { transform: translateY(-20vh) scale(0.8); }
+    100% { transform: translateY(0) scale(0.8); }
+}
+
+/* Zoom levels */
+.zoom-fit { transform: scale(0.5); }
+.zoom-normal { transform: scale(0.8); }
+.zoom-close { transform: scale(1.2); }
+
+aside {display: none; width: 200px; position: fixed; height: 100vh; left: 100%; margin-left: -240px; background-color: #ddd; border-left: 5px solid #bbb; padding: 20px; z-index: 10001;}
 #closeside {float: right; font-weight: bold; cursor: pointer;}
 
 .character {position: absolute; top: 200px; left: 200px; display: block;}
-.character .body {width: 32px; height: 32px; background-image: url(images/body0.png); background-position: 64px 0px; margin-top: 14px; }
-.character .head {width: 32px; height: 32px; background-image: url(images/head0.png); margin-bottom: 0;position: absolute; background-repeat: no-repeat; background-position: 0px -64px;}
+.character .body {width: 32px; height: 32px; background-image: url(images/body0.png); background-position: 64px 0px; margin-top: 14px;}
+.character .head {width: 32px; height: 32px; background-image: url(images/head0.png); margin-bottom: 0; position: absolute; background-repeat: no-repeat; background-position: 0px -64px;}
 
 aside ul {list-style-type: none; margin-left: 0; padding-left: 0; margin-bottom: 20px; overflow: auto;}
 .heads li, .bodies li {width: 32px; height: 32px; background-position: 0 -64px; float: left; cursor: pointer; border: 2px solid #ddd; margin-right: 4px;}
 .heads li:hover, .bodies li:hover {border: 2px solid red;}
-#head0 {background-image: url(images/head0.png);}
 
+#head0 {background-image: url(images/head0.png);}
 #head1 {background-image: url(images/head1.png);}
 #head2 {background-image: url(images/head2.png);}
 #head3 {background-image: url(images/head3.png);}
@@ -38,417 +79,556 @@ aside ul {list-style-type: none; margin-left: 0; padding-left: 0; margin-bottom:
 #opponent .body {background-image: url(images/body1.png);}
 #opponent .head {background-image: url(images/head1.png);}
 
-.character.standUp .head {
-	background-position: 0px 0px;
-}
+/* Character animations */
+.character.standUp .head {background-position: 0px 0px;}
+.character.standDown .head {background-position: 0px -64px;}
+.character.standLeft .head {background-position: 0px -32px;}
+.character.standRight .head {background-position: 0px -96px;}
+.character.standUp .body {background-position: 0px 0px;}
+.character.standDown .body {background-position: -64px 0px;}
+.character.standLeft .body {background-position: -32px 0px;}
+.character.standRight .body {background-position: -96px 0px;}
 
-.character.standDown .head {
-	background-position: 0px -64px;
-}
-
-.character.standLeft .head {
-	background-position: 0px -32px;
-}
-
-.character.standRight .head {
-	background-position: 0px -96px;
-}
-
-.character.standUp .body {
-	background-position: 0px 0px;
-}
-
-.character.standDown .body {
-	background-position: -64px 0px;
-}
-
-.character.standLeft .body {
-	background-position: -32px 0px;
-}
-
-.character.standRight .body {
-	background-position: -96px 0px;
-}
-
-
-
-
-.character.walkUp .head {
-	background-position: 0px 0px;
-	animation: headbob 0.5s infinite;
-}
-
-.character.walkUp .body {
-    animation: walkup 1s steps(3) infinite;
-}
-
-
-.character.walkDown .head {
-	background-position: 0px -64px;
-	animation: headbob 0.75s infinite;
-}
-
-.character.walkDown .body {
-    animation: walkdown 1s steps(3) infinite;
-}
-
-.character.walkLeft .head {
-	background-position: 0px -32px;
-	margin-top: -3px;
-	margin-left: -2px;
-	animation: headbob2 0.75s infinite;
-}
-
-.character.walkLeft .body {
-    animation: walkleft 1s steps(3) infinite;
-}
+.character.walkUp .head {background-position: 0px 0px; animation: headbob 0.5s infinite;}
+.character.walkUp .body {animation: walkup 1s steps(3) infinite;}
+.character.walkDown .head {background-position: 0px -64px; animation: headbob 0.75s infinite;}
+.character.walkDown .body {animation: walkdown 1s steps(3) infinite;}
+.character.walkLeft .head {background-position: 0px -32px; margin-top: -3px; margin-left: -2px; animation: headbob2 0.75s infinite;}
+.character.walkLeft .body {animation: walkleft 1s steps(3) infinite;}
+.character.walkRight .head {background-position: 0px -96px; margin-top: -3px; margin-left: 4px; animation: headbob3 0.75s infinite;}
+.character.walkRight .body {animation: walkright 1s steps(3) infinite;}
 
 @keyframes walkleft {
-   0%, 100% { background-position:  -32px  -32px; }
-     50% { background-position: -32px -128px; }
-}
-
-
-.character.walkRight .head {
-	background-position: 0px -96px;
-	margin-top: -3px;
-	margin-left: 4px;
-	animation: headbob3 0.75s infinite;
-}
-
-.character.walkRight .body {
-    animation: walkright 1s steps(3) infinite;
+   0%, 100% { background-position: -32px -32px; }
+   50% { background-position: -32px -128px; }
 }
 
 @keyframes walkright {
-   0%, 100% { background-position:  -96px  -32px; }
-     50% { background-position: -96px -128px; }
+   0%, 100% { background-position: -96px -32px; }
+   50% { background-position: -96px -128px; }
 }
-
-
 
 @keyframes walkup {
-   0%, 100% { background-position:  0px  -32px; }
-     50% { background-position: 0px -128px; }
+   0%, 100% { background-position: 0px -32px; }
+   50% { background-position: 0px -128px; }
 }
-
 
 @keyframes walkdown {
-   0%, 100% { background-position:  -64px  -32px; }
-     50% { background-position: -64px -128px; }
+   0%, 100% { background-position: -64px -32px; }
+   50% { background-position: -64px -128px; }
 }
-
 
 @keyframes headbob {
    0%, 100% { margin-top: 0px; }
-     50% { margin-top: 1px; }
+   50% { margin-top: 1px; }
 }
-
 
 @keyframes headbob2 {
    0%, 100% { margin-left: -2px; }
-     50% { margin-left: 0px; }
+   50% { margin-left: 0px; }
 }
-
 
 @keyframes headbob3 {
    0%, 100% { margin-left: 2px; }
-     50% { margin-left: 0px; }
+   50% { margin-left: 0px; }
 }
 
-
-.track {border-style: solid;
-	border-collapse: separate;
-	display: table;
-	border-width: 16px;
-	-moz-border-image: url(outer.png) 14 15 14 16 repeat;
-	-webkit-border-image: url(images/outer.png) 14 15 14 16 repeat;
-	-o-border-image: url(outer.png) 14 15 14 16 repeat;
-	border-image: url(images/outer.png) 14 15 14 16 repeat; background-image: url(images/mud.png);
-	 position: absolute; height: 80vh; width: 80vw; margin: 5vw; margin-top: 5vh;
+/* PISTA AMPLIADA HORIZONTALMENTE */
+.track {
+    border-style: solid;
+    border-collapse: separate;
+    display: table;
+    border-width: 16px;
+    -moz-border-image: url(images/outer.png) 14 15 14 16 repeat;
+    -webkit-border-image: url(images/outer.png) 14 15 14 16 repeat;
+    -o-border-image: url(images/outer.png) 14 15 14 16 repeat;
+    border-image: url(images/outer.png) 14 15 14 16 repeat;
+    background-image: url(images/mud.png);
+    position: absolute;
+    height: 130vh; /* Alto aumentado para 50 caballos */
+    width: 250vw; /* ANCHO EXTENDIDO para pista más larga */
+    margin: 2vw;
+    margin-top: 2vh;
 }
-
 
 .track .inner {
-	background-image: url(images/bg.png);
-	border-image: url(images/inner.png); border-image-slice: 16 16 16 16 fill; border-image-width: 16px 16px 16px 16px; border-image-outset: 0px 0px 0px 0px; border-image-repeat: round round;
-	border-collapse: separate; margin-top: 15vh; margin-left: 10vw; display: table;  solid transparent; background-color: green; width: 60vw; height: 50vh;}
+    background-image: url(images/bg.png);
+    border-image: url(images/inner.png);
+    border-image-slice: 16 16 16 16 fill;
+    border-image-width: 16px 16px 16px 16px;
+    border-image-outset: 0px 0px 0px 0px;
+    border-image-repeat: round round;
+    border-collapse: separate;
+    margin-top: 5vh;
+    margin-left: 5vw;
+    display: table;
+    background-color: green;
+    width: 230vw; /* Área interior más ancha */
+    height: 120vh;
+}
 
-.horse {background-image: url(images/horse2.png);}
+/* ESTILOS BASE PARA CABALLOS */
+.horse {
+    background-image: url(images/horse2.png);
+    position: absolute;
+    left: 8vw; /* Posición inicial */
+    z-index: 100;
+}
+
 .horse.runLeft {
-	width: 96px;
-	height: 60px;
-	display: block;
-	background-position: 0px -256px;
-	animation: horseLeft steps(1) 0.5s  infinite;
+    width: 96px;
+    height: 60px;
+    display: block;
+    background-position: 0px -256px;
+    animation: horseLeft steps(1) 0.5s infinite;
 }
 
 @keyframes horseLeft {
-	0%, 100% {background-position: 0px -256px; }
-	50% {background-position: 0px -450px;}
+    0%, 100% {background-position: 0px -256px;}
+    50% {background-position: 0px -450px;}
 }
 
-
 .horse.runRight {
-	width: 96px;
-	height: 60px;
-	display: block;
-	background-position: 0px -320px;
-	animation: horseRight steps(1) 0.5s  infinite;
+    width: 96px;
+    height: 60px;
+    display: block;
+    background-position: 0px -320px;
+    animation: horseRight steps(1) 0.5s infinite;
 }
 
 @keyframes horseRight {
-	0%, 100% {background-position: 0px -320px; }
-	50% {background-position: 0px -512px;}
+    0%, 100% {background-position: 0px -320px;}
+    50% {background-position: 0px -512px;}
 }
 
 .horse.runDown {
-	width: 48px;
-	height: 64px;
-	background-position:48px 192px;
-	animation: horseDown steps(1) 0.75s  infinite;
+    width: 48px;
+    height: 64px;
+    background-position: 48px 192px;
+    animation: horseDown steps(1) 0.75s infinite;
 }
-
 
 @keyframes horseDown {
-	0%, 100% {background-position:48px -192px; }
-	33% {background-position:48px -380px; }
-	66% {background-position:48px 0px;}
+    0%, 100% {background-position: 48px -192px;}
+    33% {background-position: 48px -380px;}
+    66% {background-position: 48px 0px;}
 }
-
 
 .horse.runUp {
-	width: 48px;
-	height: 64px;
-	background-position:0px 192px;
-	animation: horseUp steps(1) 0.75s  infinite;
+    width: 48px;
+    height: 64px;
+    background-position: 0px 192px;
+    animation: horseUp steps(1) 0.75s infinite;
 }
-
 
 @keyframes horseUp {
-	0%, 100% {background-position:0px -192px; }
-	33% {background-position:0px -380px; }
-	66% {background-position:0px 0px;}
+    0%, 100% {background-position: 0px -192px;}
+    33% {background-position: 0px -380px;}
+    66% {background-position: 0px 0px;}
 }
-
 
 #startline {
-	width: 2vw;
-	height: 15vh;
-background-color: #eee;
-background-image: linear-gradient(45deg, black 25%, transparent 25%, transparent 75%, black 75%, black),
-linear-gradient(-45deg, black 25%, transparent 25%, transparent 75%, black 75%, black);
-background-size:1vw 1vw;
-position: absolute;
-margin-left: 20vw;
-opacity: 0.7;
+    width: 2vw;
+    height: 120vh; /* Altura ajustada */
+    background-color: #eee;
+    background-image: linear-gradient(45deg, black 25%, transparent 25%, transparent 75%, black 75%, black),
+                      linear-gradient(-45deg, black 25%, transparent 25%, transparent 75%, black 75%, black);
+    background-size: 1vw 1vw;
+    position: absolute;
+    margin-left: 8vw;
+    opacity: 0.7;
+    z-index: 50;
 }
 
-#horse1 {
-	position: absolute; top: 4vh; z-index: 999;
+/* LÍNEA DE META */
+#finishline {
+    width: 2vw;
+    height: 120vh;
+    background-color: #fff;
+    background-image: linear-gradient(45deg, black 25%, transparent 25%, transparent 75%, black 75%, black),
+                      linear-gradient(-45deg, black 25%, transparent 25%, transparent 75%, black 75%, black);
+    background-size: 1vw 1vw;
+    position: absolute;
+    margin-left: 220vw; /* Al final de la pista */
+    opacity: 0.8;
+    z-index: 50;
 }
 
-#horse4 .rider .head {background-image: url(images/head2.png);}
-#horse4 .rider .body {background-image: url(images/body3.png);}
+/* POSICIONAMIENTO VERTICAL PARA 50 CABALLOS (más compacto) */
+#horse1 { top: 1vh; }
+#horse2 { top: 3.4vh; }
+#horse3 { top: 5.8vh; }
+#horse4 { top: 8.2vh; }
+#horse5 { top: 10.6vh; }
+#horse6 { top: 13vh; }
+#horse7 { top: 15.4vh; }
+#horse8 { top: 17.8vh; }
+#horse9 { top: 20.2vh; }
+#horse10 { top: 22.6vh; }
+#horse11 { top: 25vh; }
+#horse12 { top: 27.4vh; }
+#horse13 { top: 29.8vh; }
+#horse14 { top: 32.2vh; }
+#horse15 { top: 34.6vh; }
+#horse16 { top: 37vh; }
+#horse17 { top: 39.4vh; }
+#horse18 { top: 41.8vh; }
+#horse19 { top: 44.2vh; }
+#horse20 { top: 46.6vh; }
+#horse21 { top: 49vh; }
+#horse22 { top: 51.4vh; }
+#horse23 { top: 53.8vh; }
+#horse24 { top: 56.2vh; }
+#horse25 { top: 58.6vh; }
+#horse26 { top: 61vh; }
+#horse27 { top: 63.4vh; }
+#horse28 { top: 65.8vh; }
+#horse29 { top: 68.2vh; }
+#horse30 { top: 70.6vh; }
+#horse31 { top: 73vh; }
+#horse32 { top: 75.4vh; }
+#horse33 { top: 77.8vh; }
+#horse34 { top: 80.2vh; }
+#horse35 { top: 82.6vh; }
+#horse36 { top: 85vh; }
+#horse37 { top: 87.4vh; }
+#horse38 { top: 89.8vh; }
+#horse39 { top: 92.2vh; }
+#horse40 { top: 94.6vh; }
+#horse41 { top: 97vh; }
+#horse42 { top: 99.4vh; }
+#horse43 { top: 101.8vh; }
+#horse44 { top: 104.2vh; }
+#horse45 { top: 106.6vh; }
+#horse46 { top: 109vh; }
+#horse47 { top: 111.4vh; }
+#horse48 { top: 113.8vh; }
+#horse49 { top: 116.2vh; }
+#horse50 { top: 118.6vh; }
 
-
-#horse3 .rider .head {background-image: url(images/head1.png);}
-#horse3 .rider .body {background-image: url(images/body1.png);}
-
-#horse2 .rider .head {background-image: url(images/head4.png);}
-#horse2 .rider .body {background-image: url(images/body4.png);}
-
-#horse2 {
-	position: absolute; top: 8vh;  z-index: 999;
-	background-image: url(images/horse3.png);
+/* Alternar imágenes de caballos */
+#horse2, #horse7, #horse12, #horse17, #horse22, #horse27, #horse32, #horse37, #horse42, #horse47 {
+    background-image: url(images/horse3.png);
 }
 
-#horse3 {
-	position: absolute; top: 12vh;  z-index: 999;
-	background-image: url(images/horse1.png);
+#horse3, #horse8, #horse13, #horse18, #horse23, #horse28, #horse33, #horse38, #horse43, #horse48 {
+    background-image: url(images/horse1.png);
 }
 
-#horse4 {
-	position: absolute; top: 16vh; z-index: 999;
-	background-image: url(images/horse4.png);
+#horse4, #horse9, #horse14, #horse19, #horse24, #horse29, #horse34, #horse39, #horse44, #horse49 {
+    background-image: url(images/horse4.png);
 }
 
-
-.horse {left: 20vw;}
-
+/* Estilos para jinetes */
 .horse.standLeft {background-position: 0px -64px; width: 96px; height: 60px;}
 .horse.standLeft .rider .body {background-position: -32px -320px;}
 .horse.standLeft .rider .head {background-position: 0px -32px;}
-
 
 .horse.standRight {background-position: 0px -128px; width: 96px; height: 60px;}
 .horse.standRight .rider {margin-left: -15px;}
 .horse.standRight .rider .body {background-position: -96px -320px;}
 .horse.standRight .rider .head {background-position: 0px -96px;}
 
-
 .horse .rider .head {
-	position: absolute;
-	margin-left: 40px;
-	margin-top: -16px;
-	background-image: url(images/head0.png);
-	width: 32px;
-	height: 32px;
+    position: absolute;
+    margin-left: 40px;
+    margin-top: -16px;
+    background-image: url(images/head0.png);
+    width: 32px;
+    height: 32px;
 }
-
 
 .horse .rider .body {
-	background-image: url(images/body0.png);
- 	width: 32px;
- 	height: 32px;
- 	margin-left: 40px;
- 	margin-top: 8px;
+    background-image: url(images/body0.png);
+    width: 32px;
+    height: 32px;
+    margin-left: 40px;
+    margin-top: 8px;
 }
 
-
-.horse.runDown .rider, .horse.runRight .rider, .horse.runLeft .rider{
-	animation: riderBob1 0.75s infinite;
+.horse.runDown .rider, .horse.runRight .rider, .horse.runLeft .rider {
+    animation: riderBob1 0.75s infinite;
 }
 
-.horse.runLeft .rider .body {
-	background-position: -32px -320px;
-}
-
-
-
-.horse.runRight .rider {
-	margin-left: -15px;
-}
-
-.horse.runRight .rider .head {
-	background-position: 0px -96px;
-	animation: headbob4 0.5s infinite;
-}
-
-.horse.runRight .rider .body {
-	background-position: -96px -320px;
-}
-
-
-.horse.runDown, .horse.runUp {
-	margin-left: 32px;
-}
-
-.horse.runDown .rider {
-	margin-left: -32px;
-
-}
-
-.horse.runDown .rider .head {
-	background-position: 0px -64px;
-	animation: headbob5 0.5s infinite;
-}
-
-.horse.runDown .rider .body {
-	background-position: -64px -320px;
-	margin-top: -16px;
-}
-
-
-
-
-.horse.runUp .rider {
-	margin-left: -32px;
-    animation: riderBob2 0.75s infinite;
-}
-
-.horse.runUp .rider .head {
-	background-position: 0px 0px;
-	animation: headbob5 0.5s infinite;
-}
-
-.horse.runUp .rider .body {
-	background-position: 0px -320px;
-	margin-top: -16px;
-}
-
-
-
-
-
-.horse.runLeft .rider .head {
-	background-position: 0px -32px;
-	animation: headbob4 0.5s infinite;
-}
-
+.horse.runLeft .rider .body {background-position: -32px -320px;}
+.horse.runRight .rider {margin-left: -15px;}
+.horse.runRight .rider .head {background-position: 0px -96px; animation: headbob4 0.5s infinite;}
+.horse.runRight .rider .body {background-position: -96px -320px;}
+.horse.runDown, .horse.runUp {margin-left: 32px;}
+.horse.runDown .rider {margin-left: -32px;}
+.horse.runDown .rider .head {background-position: 0px -64px; animation: headbob5 0.5s infinite;}
+.horse.runDown .rider .body {background-position: -64px -320px; margin-top: -16px;}
+.horse.runUp .rider {margin-left: -32px; animation: riderBob2 0.75s infinite;}
+.horse.runUp .rider .head {background-position: 0px 0px; animation: headbob5 0.5s infinite;}
+.horse.runUp .rider .body {background-position: 0px -320px; margin-top: -16px;}
+.horse.runLeft .rider .head {background-position: 0px -32px; animation: headbob4 0.5s infinite;}
 
 @keyframes headbob4 {
    0%, 100% { margin-left: 40px; }
-     50% { margin-left: 42px; }
+   50% { margin-left: 42px; }
 }
 
 @keyframes headbob5 {
    0%, 100% { margin-top: -10px; }
-     50% { margin-top: -8px; }
+   50% { margin-top: -8px; }
 }
 
-
 @keyframes riderBob1 {
-	 0%, 100% { margin-top: 8px; }
-     50% { margin-top: 10px; }
+    0%, 100% { margin-top: 8px; }
+    50% { margin-top: 10px; }
 }
 
 @keyframes riderBob2 {
-	 0%, 100% { margin-top: 18px; }
-     50% { margin-top: 20px; }
+    0%, 100% { margin-top: 18px; }
+    50% { margin-top: 20px; }
 }
 
+/* CONTROLES DE CÁMARA */
+.camera-controls {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10002;
+    display: flex;
+    gap: 10px;
+    background: rgba(0,0,0,0.7);
+    padding: 10px;
+    border-radius: 10px;
+}
 
+.camera-controls button {
+    padding: 8px 16px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.camera-controls button:hover {
+    background: #45a049;
+}
+
+.camera-controls button.active {
+    background: #2196F3;
+}
+
+/* INTERFAZ DE USUARIO */
 #start {
-	float: right;
-	margin: 1vw;
-	padding: 1vw;
-	background: #3498db;
-	background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
-	background-image: -moz-linear-gradient(top, #3498db, #2980b9);
-	background-image: -ms-linear-gradient(top, #3498db, #2980b9);
-	background-image: -o-linear-gradient(top, #3498db, #2980b9);
-	background-image: linear-gradient(to bottom, #3498db, #2980b9);
-	-webkit-border-radius: 28;
-	-moz-border-radius: 28;
-	border-radius: 28px;
-	font-family: Arial;
-	color: #ffffff;
-	font-size: 20px;
-	padding: 10px 20px 10px 20px;
-	text-decoration: none;
-	cursor: pointer;
-	text-shadow: 2px 2px 2px #333;
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    margin: 0;
+    background: #3498db;
+    background-image: linear-gradient(to bottom, #3498db, #2980b9);
+    border-radius: 28px;
+    font-family: Arial;
+    color: #ffffff;
+    font-size: 20px;
+    padding: 10px 20px;
+    text-decoration: none;
+    cursor: pointer;
+    text-shadow: 2px 2px 2px #333;
+    z-index: 10002;
 }
 
-#start:hover {
-	color: #000;
-}
-#start:disabled{
-	background: grey;
+#start:hover {color: #000;}
+#start:disabled {background: grey;}
 
+#bet {
+    background-color: #ffefb4;
+    padding: 1vw;
+    width: 250px;
+    border: 2px solid #555;
+    border-radius: 20px;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 10002;
+    max-height: 300px;
+    overflow-y: auto;
 }
-#bet, #results {
-	background-color: #ffefb4;
-	padding: 1vw;
-	width: 20vw;
-	border: 2px solid #555;
-	border-radius: 20px;
-	margin-top: 5vh;
-	margin-left: 2vw;
-	overflow: auto;
-	float: left;
+
+#results {
+    background-color: #ffefb4;
+    padding: 1vw;
+    width: auto;
+    max-width: 400px;
+    border: 2px solid #555;
+    border-radius: 20px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10002;
+    max-height: 500px;
+    overflow-y: auto;
 }
 
 #funds {font-weight: bold;}
 #funds:before {content: "£";}
 
-label, input, select {float:  left; display: block; width: 8vw; margin-bottom: 0.5vh;}
-label {clear: left;}
+label, input, select {
+    display: block;
+    margin-bottom: 10px;
+}
 
-#results {width: auto; position: absolute; margin-top: 8vh; margin-left: 48vw;}
-#results td {height: 30px; width: 30px; background-repeat: no-repeat; background-position: 0px -64px;}
-#results .horse1 { background-image: url(images/head0.png);}
-#results .horse2 {  background-image: url(images/head4.png);}
-#results .horse3 {  background-image: url(images/head1.png);}
-#results .horse4 {  background-image: url(images/head2.png);}
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input, select {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Selector de caballos mejorado */
+#horseSelect {
+    width: 100%;
+    height: 35px;
+    font-size: 14px;
+}
+
+/* Mini mapa de progreso */
+.race-minimap {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #333;
+    border-radius: 10px;
+    z-index: 10002;
+    padding: 10px;
+}
+
+.minimap-track {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: linear-gradient(to right, #4CAF50 0%, #FFC107 50%, #F44336 100%);
+    border-radius: 5px;
+}
+
+.minimap-horse {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: black;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Tabla de resultados compacta */
+#results table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#results th, #results td {
+    padding: 5px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-size: 12px;
+}
+
+#results td.position {
+    font-weight: bold;
+    width: 30px;
+}
+
+#results td.horse-icon {
+    width: 20px;
+    height: 20px;
+    background-repeat: no-repeat;
+    background-position: 0px -64px;
+    background-size: 20px 80px;
+}
+
+/* Iconos de resultados */
+#results .horse1, #results .horse11, #results .horse21, #results .horse31, #results .horse41 {
+    background-image: url(images/head0.png);
+}
+
+#results .horse2, #results .horse12, #results .horse22, #results .horse32, #results .horse42 {
+    background-image: url(images/head1.png);
+}
+
+#results .horse3, #results .horse13, #results .horse23, #results .horse33, #results .horse43 {
+    background-image: url(images/head2.png);
+}
+
+#results .horse4, #results .horse14, #results .horse24, #results .horse34, #results .horse44 {
+    background-image: url(images/head3.png);
+}
+
+#results .horse5, #results .horse15, #results .horse25, #results .horse35, #results .horse45 {
+    background-image: url(images/head4.png);
+}
+
+/* Los demás caballos repiten el patrón */
+#results .horse6, #results .horse16, #results .horse26, #results .horse36, #results .horse46 {
+    background-image: url(images/head0.png);
+}
+
+#results .horse7, #results .horse17, #results .horse27, #results .horse37, #results .horse47 {
+    background-image: url(images/head1.png);
+}
+
+#results .horse8, #results .horse18, #results .horse28, #results .horse38, #results .horse48 {
+    background-image: url(images/head2.png);
+}
+
+#results .horse9, #results .horse19, #results .horse29, #results .horse39, #results .horse49 {
+    background-image: url(images/head3.png);
+}
+
+#results .horse10, #results .horse20, #results .horse30, #results .horse40, #results .horse50 {
+    background-image: url(images/head4.png);
+}
+
+/* Indicador de posición actual durante la carrera */
+.position-indicator {
+    position: absolute;
+    right: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #FFD700;
+    color: #000;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: bold;
+    z-index: 200;
+}
+
+/* Efectos visuales para el líder */
+.horse.leader {
+    filter: drop-shadow(0 0 10px gold);
+}
+
+/* Responsive para pantallas grandes */
+@media screen and (min-width: 1920px) {
+    .camera-container {
+        transform: scale(0.9);
+    }
+    
+    .track {
+        width: 280vw;
+    }
+    
+    .track .inner {
+        width: 260vw;
+    }
+    
+    #finishline {
+        margin-left: 250vw;
+    }
+}

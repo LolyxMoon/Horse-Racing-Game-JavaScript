@@ -3,179 +3,483 @@ Assignment: Javascript Assignment
 Filename: game.js
 @author: KITSANTAS FOTIOS (17421808)
 Date: 30/04/17
+Modified: Para 50 caballos en carrera lineal de 700 metros
 */
 
-/*Create a Javascript Object for a horse with 3 parameters: HTML ID, position x and y*/
-function Horse(id, x, y){
-	this.element = document.getElementById(id);/*HTML element of the horse*/
-	this.speed = Math.random()*10 + 10; /*Initiate a random speed for each horse, the greater speed, the faster horse. The value is between 10 and 20*/
-	this.originX = x;/*Original X position*/
-	this.originY = y;/*Original Y position*/
-	this.x = x; /*Current X*/
-	this.y = y; /*Current Y*/
-	this.number = parseInt(id.replace(/[\D]/g, '')); /*Number of horse, number will be 1 or 2 or 3 or 4*/
-	this.lap = 0; //Current lap of the horse
+// Configuración de la carrera
+const TOTAL_HORSES = 50;
+const RACE_DISTANCE = 700; // metros
+const TRACK_WIDTH = 200; // vw - ancho de la pista en viewport width
+const PIXELS_PER_METER = TRACK_WIDTH / RACE_DISTANCE; // Escala de conversión
 
-	this.moveRight = function(){
-		var horse = this;/*Assign horse to this object*/
+// Variables globales
+var horses = [];
+var results = [];
+var funds = 100;
+var bethorse = null;
+var amount = 0;
+var raceInProgress = false;
+var raceStartTime = null;
+var cameraFollowInterval = null;
 
-		/*Use setTimeout to have the delay in moving the horse*/
-		setTimeout(function(){
-			//Move the horse to right 1vw
-			horse.x ++;
-			horse.element.style.left = horse.x +'vw';
+// Nombres de los caballos
+const horseNames = [
+    "Lightning", "Thunder", "Storm", "Blaze", "Shadow",
+    "Spirit", "Arrow", "Comet", "Flash", "Bolt",
+    "Rocket", "Meteor", "Star", "Wind", "Fire",
+    "Ice", "Dawn", "Dusk", "Moon", "Sun",
+    "Galaxy", "Nova", "Nebula", "Cosmos", "Orion",
+    "Phoenix", "Dragon", "Eagle", "Falcon", "Hawk",
+    "Tiger", "Lion", "Panther", "Jaguar", "Cheetah",
+    "Warrior", "Champion", "Victory", "Glory", "Triumph",
+    "Legend", "Myth", "Dream", "Magic", "Wonder",
+    "Marvel", "Mystic", "Phantom", "Ghost", "Specter"
+];
 
-			//Check if goes through the start line, if horse runs enough number of laps and has pass the start line then stop
-			if (horse.lap == num_lap && horse.x > horse.originX + 6){
-				horse.arrive();
-			}else{
-				//Make decision to move Down or not
-				//The width of the Down Road is 10wh, then the distance of each horse is 2.5vw (4 horses). The right position of the road is 82.5vw
-				//Continue to move right if not reach the point to turn
-				if (horse.x < 82.5 - horse.number*2.5){
-					horse.moveRight();
-				}else{
-					//Change HTML class of horse to runDown
-					horse.element.className = 'horse runDown';
-					//Change the speed, will be random value from 10 to 20
-					horse.speed = Math.random()*10 + 10;
-					horse.moveDown();
-				}
-			}
-
-		}, 1000/this.speed);
-		/* 1000/this.speed is timeout time*/
-	}
-
-	/*Do the same for moveDown, moveLeft, moveUp*/
-	this.moveDown = function(){
-		var horse = this;
-		setTimeout(function(){
-			horse.y ++;
-			horse.element.style.top = horse.y +'vh';
-			if (horse.y < horse.originY + 65){
-				horse.moveDown();
-			}else{
-				horse.element.className = 'horse runLeft';
-				horse.speed = Math.random()*10 + 10;
-				horse.moveLeft();
-			}
-		}, 1000/this.speed)
-	}
-	this.moveLeft = function(){
-		var horse = this;
-		setTimeout(function(){
-			horse.x --;
-			horse.element.style.left = horse.x +'vw';
-			if (horse.x > 12.5 - horse.number*2.5){
-				horse.moveLeft();
-			}else{
-				horse.element.className = 'horse runUp';
-				horse.speed = Math.random()*10 + 10;
-				horse.moveUp();
-			}
-		}, 1000/this.speed)
-	}
-	this.moveUp = function(){
-		var horse = this;
-		setTimeout(function(){
-			horse.y --;
-			horse.element.style.top = horse.y +'vh';
-			if (horse.y > horse.originY){
-				horse.speed = Math.random()*10 + 10;
-				horse.moveUp();
-			}else{
-				horse.element.className = 'horse runRight';
-				//Nearly finish the lap
-				horse.lap ++;
-				horse.moveRight();
-			}
-		}, 1000/this.speed)
-	}
-
-	/*Trigger the horse by run*/
-	this.run = function(){
-		this.element.className = 'horse runRight';
-		this.moveRight();
-	}
-	this.arrive = function(){
-		//Stop the horse run by change class to standRight
-		this.element.className = 'horse standRight';
-		this.lap = 0;//Reset the lap
-
-		/*Show the result*/
-		var tds = document.querySelectorAll('#results .result');//Get all table cell to display the result
-		//results.length is the current arrive position
-		tds[results.length].className = 'result horse'+this.number;//The class of result look like: result horse1...
-
-		//Push the horse number to results array, according the the results array, we know the order of race results
-		results.push(this.number);
-
-		//Win horse
-		if (results.length == 1){
-			//If win horse is the bet horse, then add the fund
-			if (this.number == bethorse){
-				funds += amount;
-			}else{
-				funds -= amount;
-			}
-			document.getElementById('funds').innerText = funds;
-		}else if (results.length == 4){
-			//All horse arrived, enable again the Start Button
-			document.getElementById('start').disabled = false;
-		}
-	}
+// Clase Horse mejorada para carrera lineal
+function Horse(id, number, y) {
+    this.element = document.getElementById(id);
+    this.number = number;
+    this.name = horseNames[number - 1];
+    
+    // Posición y velocidad
+    this.x = 8; // Posición inicial en vw (línea de salida)
+    this.y = y; // Posición vertical fija
+    this.meters = 0; // Distancia recorrida en metros
+    
+    // Velocidad base + variación aleatoria (metros por segundo)
+    this.baseSpeed = 15 + Math.random() * 3; // Entre 15-18 m/s
+    this.currentSpeed = this.baseSpeed;
+    this.speedVariation = 0.2; // Variación de velocidad durante la carrera
+    
+    // Estado
+    this.finished = false;
+    this.finishTime = null;
+    this.position = null;
+    
+    // Indicador de posición
+    this.positionIndicator = this.element.querySelector('.position-indicator');
+    
+    // Inicializar posición
+    this.element.style.left = this.x + 'vw';
+    this.element.style.top = this.y + 'vh';
+    
+    // Método para mover el caballo
+    this.move = function() {
+        if (this.finished || !raceInProgress) return;
+        
+        var horse = this;
+        
+        // Actualizar velocidad con pequeñas variaciones aleatorias
+        this.currentSpeed = this.baseSpeed * (1 + (Math.random() - 0.5) * this.speedVariation);
+        
+        // Añadir aceleración/desaceleración según la fase de la carrera
+        if (this.meters < 100) {
+            // Fase de aceleración inicial
+            this.currentSpeed *= 0.8 + (this.meters / 100) * 0.2;
+        } else if (this.meters > 600) {
+            // Sprint final
+            this.currentSpeed *= 1.1;
+        } else if (this.meters > 400 && this.meters < 500) {
+            // Pequeña fatiga a mitad de carrera
+            this.currentSpeed *= 0.95;
+        }
+        
+        // Calcular nueva posición
+        var deltaTime = 0.05; // 50ms de frame rate
+        var metersAdvanced = this.currentSpeed * deltaTime;
+        this.meters += metersAdvanced;
+        
+        // Convertir metros a vw para el display
+        this.x = 8 + (this.meters * PIXELS_PER_METER);
+        this.element.style.left = this.x + 'vw';
+        
+        // Actualizar mini-mapa
+        this.updateMinimap();
+        
+        // Verificar si llegó a la meta
+        if (this.meters >= RACE_DISTANCE) {
+            this.finish();
+        } else {
+            // Continuar moviendo
+            setTimeout(function() {
+                horse.move();
+            }, 50); // 20 FPS
+        }
+    };
+    
+    // Actualizar posición en el mini-mapa
+    this.updateMinimap = function() {
+        var progress = (this.meters / RACE_DISTANCE) * 100;
+        var miniHorse = document.getElementById('mini-horse-' + this.number);
+        if (miniHorse) {
+            miniHorse.style.left = Math.min(progress, 100) + '%';
+            
+            // Destacar los primeros 3
+            if (this.position && this.position <= 3) {
+                miniHorse.style.backgroundColor = this.position === 1 ? 'gold' : 
+                                                 this.position === 2 ? 'silver' : 
+                                                 'bronze';
+                miniHorse.style.width = '6px';
+                miniHorse.style.height = '6px';
+            }
+        }
+    };
+    
+    // Método para terminar la carrera
+    this.finish = function() {
+        this.finished = true;
+        this.meters = RACE_DISTANCE;
+        this.finishTime = (Date.now() - raceStartTime) / 1000; // Tiempo en segundos
+        this.position = results.length + 1;
+        
+        // Cambiar animación a parado
+        this.element.className = 'horse standRight';
+        
+        // Actualizar indicador de posición
+        if (this.positionIndicator) {
+            this.positionIndicator.textContent = this.position;
+            this.positionIndicator.style.backgroundColor = 
+                this.position === 1 ? 'gold' : 
+                this.position === 2 ? 'silver' : 
+                this.position === 3 ? '#CD7F32' : '#FFD700';
+        }
+        
+        // Agregar a resultados
+        results.push({
+            number: this.number,
+            name: this.name,
+            time: this.finishTime,
+            position: this.position
+        });
+        
+        // Actualizar tabla de resultados
+        this.updateResults();
+        
+        // Verificar si ganó la apuesta
+        if (this.position === 1) {
+            this.checkBet();
+        }
+        
+        // Si todos terminaron, finalizar la carrera
+        if (results.length === TOTAL_HORSES) {
+            this.endRace();
+        }
+    };
+    
+    // Actualizar tabla de resultados
+    this.updateResults = function() {
+        var tbody = document.getElementById('results-body');
+        var row = document.createElement('tr');
+        
+        // Resaltar las primeras 3 posiciones
+        if (this.position <= 3) {
+            row.style.backgroundColor = 
+                this.position === 1 ? 'rgba(255, 215, 0, 0.3)' : 
+                this.position === 2 ? 'rgba(192, 192, 192, 0.3)' : 
+                'rgba(205, 127, 50, 0.3)';
+        }
+        
+        row.innerHTML = `
+            <td class="position">${this.position}°</td>
+            <td class="horse-icon horse${this.number}"></td>
+            <td>${this.name} (#${this.number})</td>
+            <td>${this.finishTime.toFixed(2)}s</td>
+        `;
+        
+        tbody.appendChild(row);
+    };
+    
+    // Verificar apuesta
+    this.checkBet = function() {
+        if (this.number == bethorse) {
+            // Ganó la apuesta! Pago 3:1
+            var winnings = amount * 3;
+            funds += winnings;
+            document.getElementById('bet-result').innerHTML = 
+                `<span style="color: green;">¡GANASTE! +£${winnings}</span>`;
+        } else if (bethorse) {
+            // Perdió la apuesta
+            funds -= amount;
+            document.getElementById('bet-result').innerHTML = 
+                `<span style="color: red;">Perdiste £${amount}. Ganó ${this.name}</span>`;
+        }
+        
+        document.getElementById('funds').innerText = funds;
+        document.getElementById('bet-result').style.display = 'block';
+    };
+    
+    // Finalizar la carrera
+    this.endRace = function() {
+        raceInProgress = false;
+        document.getElementById('start').disabled = false;
+        
+        // Detener seguimiento de cámara
+        if (cameraFollowInterval) {
+            clearInterval(cameraFollowInterval);
+        }
+        
+        // Mostrar estadísticas finales
+        console.log('Carrera finalizada!');
+        console.log('Top 3:');
+        for (let i = 0; i < Math.min(3, results.length); i++) {
+            console.log(`${i+1}. ${results[i].name} - ${results[i].time.toFixed(2)}s`);
+        }
+    };
+    
+    // Iniciar carrera
+    this.run = function() {
+        this.element.className = 'horse runRight';
+        this.finished = false;
+        this.meters = 0;
+        this.position = null;
+        
+        // Pequeño delay aleatorio para salida más realista (0-200ms)
+        var startDelay = Math.random() * 200;
+        var horse = this;
+        
+        setTimeout(function() {
+            horse.move();
+        }, startDelay);
+    };
+    
+    // Reset para nueva carrera
+    this.reset = function() {
+        this.x = 8;
+        this.meters = 0;
+        this.finished = false;
+        this.finishTime = null;
+        this.position = null;
+        this.element.style.left = this.x + 'vw';
+        this.element.className = 'horse standRight';
+        
+        if (this.positionIndicator) {
+            this.positionIndicator.textContent = this.number;
+            this.positionIndicator.style.backgroundColor = 'rgba(255, 215, 0, 0.8)';
+        }
+        
+        // Reset mini-mapa
+        var miniHorse = document.getElementById('mini-horse-' + this.number);
+        if (miniHorse) {
+            miniHorse.style.left = '0%';
+            miniHorse.style.backgroundColor = 'black';
+            miniHorse.style.width = '4px';
+            miniHorse.style.height = '4px';
+        }
+    };
 }
 
-var num_lap = 1, results = [], funds = 100, bethorse, amount;
+// Función para actualizar posiciones en tiempo real
+function updateRacePositions() {
+    if (!raceInProgress) return;
+    
+    // Ordenar caballos por distancia recorrida
+    var positions = horses.map(function(horse, index) {
+        return {
+            horse: horse,
+            meters: horse.meters,
+            index: index
+        };
+    }).sort(function(a, b) {
+        return b.meters - a.meters;
+    });
+    
+    // Actualizar posiciones actuales
+    positions.forEach(function(item, pos) {
+        if (!item.horse.finished) {
+            item.horse.positionIndicator.textContent = pos + 1;
+            
+            // Destacar el líder
+            if (pos === 0) {
+                item.horse.element.classList.add('leader');
+            } else {
+                item.horse.element.classList.remove('leader');
+            }
+        }
+    });
+    
+    // Actualizar contador de distancia del líder
+    if (positions[0]) {
+        var leaderMeters = Math.min(positions[0].meters, RACE_DISTANCE);
+        updateDistanceCounter(leaderMeters);
+        
+        // Actualizar pantalla gigante
+        updateJumbotron(positions[0].horse, positions[1] ? positions[1].horse : null, positions[2] ? positions[2].horse : null);
+    }
+}
 
-//Start the function when the document loaded
+// Actualizar pantalla gigante
+function updateJumbotron(leader, second, third) {
+    var display = document.getElementById('live-position');
+    if (display) {
+        var html = '<div style="color: #FFD700; font-size: 1.5vw;">🥇 ' + leader.name + ' (#' + leader.number + ')</div>';
+        html += '<div style="font-size: 0.8vw; margin-top: 5px;">' + leader.meters.toFixed(0) + ' metros</div>';
+        
+        if (second) {
+            html += '<div style="color: #C0C0C0; font-size: 1vw; margin-top: 10px;">🥈 ' + second.name + '</div>';
+        }
+        if (third) {
+            html += '<div style="color: #CD7F32; font-size: 0.8vw;">🥉 ' + third.name + '</div>';
+        }
+        
+        display.innerHTML = html;
+    }
+}
+
+// Actualizar contador de distancia
+function updateDistanceCounter(meters) {
+    var counter = document.getElementById('distance-counter');
+    if (!counter) {
+        // Crear contador si no existe
+        counter = document.createElement('div');
+        counter.id = 'distance-counter';
+        counter.style.cssText = 'position: fixed; top: 60px; left: 50%; transform: translateX(-50%); ' +
+                               'background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; ' +
+                               'border-radius: 20px; font-size: 18px; z-index: 10003;';
+        document.body.appendChild(counter);
+    }
+    
+    counter.innerHTML = `<strong>${meters.toFixed(0)}m / ${RACE_DISTANCE}m</strong>`;
+    
+    // Cambiar color según progreso
+    var progress = meters / RACE_DISTANCE;
+    if (progress < 0.5) {
+        counter.style.color = '#4CAF50';
+    } else if (progress < 0.8) {
+        counter.style.color = '#FFC107';
+    } else {
+        counter.style.color = '#F44336';
+    }
+}
+
+// Función de seguimiento de cámara
+function followRaceCamera() {
+    if (!raceInProgress) return;
+    
+    // Encontrar el caballo líder
+    var maxMeters = 0;
+    var leader = null;
+    
+    horses.forEach(function(horse) {
+        if (horse.meters > maxMeters) {
+            maxMeters = horse.meters;
+            leader = horse;
+        }
+    });
+    
+    if (leader && autoCameraEnabled) {
+        var camera = document.querySelector('.camera-container');
+        var viewportWidth = window.innerWidth;
+        var horsePosition = leader.x * viewportWidth / 100; // Convertir vw a px
+        
+        // Mantener al líder en el centro de la pantalla
+        if (horsePosition > viewportWidth * 0.3) {
+            var offset = horsePosition - viewportWidth * 0.4;
+            camera.style.transform = `translateX(-${offset}px) scale(0.8)`;
+        }
+    }
+}
+
+// Inicialización cuando se carga el documento
 document.addEventListener("DOMContentLoaded", function(event) {
-
-	var horse1 = new Horse('horse1', 20, 4);
-	var horse2 = new Horse('horse2', 20, 8);
-	var horse3 = new Horse('horse3', 20, 12);
-	var horse4 = new Horse('horse4', 20, 16);
-
-	//Event listener to the Start button
-	document.getElementById('start').onclick = function(){
-		amount = parseInt(document.getElementById('amount').value);
-
-		// Check for negative or zero amount
-		if (amount <= 0) {
-			alert('Please enter a positive bet amount.');
-			return;
-		}
-
-		// Check for invalid amount (not a number)
-		if (isNaN(amount)) {
-			alert('Please enter a valid bet amount.');
-			return;
-		}
-
-		num_lap = parseInt(document.getElementById('num_lap').value);
-		bethorse = parseInt(document.getElementById('bethorse').value);
-
-		if (funds < amount){
-			alert('Not enough funds.');
-		}
-		else if (num_lap <= 0){
-			alert('Number of lap must be greater than 0.');
-		}else{
-
-			/*Started the game*/
-			this.disabled = true;/*Disable the start button*/
-			var tds = document.querySelectorAll('#results .result');//Get all cells of result table.
-			for (var i = 0; i < tds.length; i++) {
-				tds[i].className = 'result';//Reset the result.
-			}
-
-			document.getElementById('funds').innerText = funds;
-			results = [];//Results array is to save the horse numbers when the race is finished.
-			horse1.run();
-			horse2.run();
-			horse3.run();
-			horse4.run();
-		}
-	}
+    
+    // Crear los 50 caballos
+    for (let i = 1; i <= TOTAL_HORSES; i++) {
+        var yPosition = 1 + (i - 1) * 2.4; // Posición vertical
+        horses.push(new Horse('horse' + i, i, yPosition));
+    }
+    
+    // Event listener del botón Start
+    document.getElementById('start').onclick = function() {
+        amount = parseInt(document.getElementById('amount').value) || 0;
+        bethorse = parseInt(document.getElementById('bethorse').value) || null;
+        
+        // Validaciones
+        if (bethorse && amount > 0) {
+            if (amount > funds) {
+                alert('No tienes suficientes fondos. Fondos disponibles: £' + funds);
+                return;
+            }
+            if (amount <= 0) {
+                alert('Por favor ingresa una cantidad positiva para apostar.');
+                return;
+            }
+        }
+        
+        // Limpiar resultados anteriores
+        document.getElementById('results-body').innerHTML = '';
+        document.getElementById('bet-result').style.display = 'none';
+        results = [];
+        
+        // Resetear todos los caballos
+        horses.forEach(function(horse) {
+            horse.reset();
+        });
+        
+        // Iniciar la carrera
+        this.disabled = true;
+        raceInProgress = true;
+        raceStartTime = Date.now();
+        
+        // Activar cámara de seguimiento
+        if (autoCameraEnabled) {
+            document.querySelector('.camera-container').classList.add('camera-follow');
+        }
+        
+        // Iniciar seguimiento de cámara horizontal
+        cameraFollowInterval = setInterval(function() {
+            followRaceCamera();
+            updateRacePositions();
+        }, 100);
+        
+        // Countdown para empezar
+        var countdown = 3;
+        var countdownDiv = document.createElement('div');
+        countdownDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); ' +
+                                     'font-size: 100px; font-weight: bold; color: red; z-index: 10004; ' +
+                                     'text-shadow: 3px 3px 6px rgba(0,0,0,0.7);';
+        document.body.appendChild(countdownDiv);
+        
+        var countInterval = setInterval(function() {
+            if (countdown > 0) {
+                countdownDiv.textContent = countdown;
+                countdown--;
+            } else {
+                countdownDiv.textContent = '¡GO!';
+                
+                // Iniciar todos los caballos
+                horses.forEach(function(horse) {
+                    horse.run();
+                });
+                
+                // Remover countdown después de 1 segundo
+                setTimeout(function() {
+                    document.body.removeChild(countdownDiv);
+                }, 1000);
+                
+                clearInterval(countInterval);
+            }
+        }, 1000);
+    };
+    
+    // Agregar botón de reset
+    var resetBtn = document.createElement('button');
+    resetBtn.textContent = 'Reset Camera';
+    resetBtn.style.cssText = 'position: fixed; top: 20px; left: 20px; padding: 10px; ' +
+                            'background: #ff5722; color: white; border: none; ' +
+                            'border-radius: 5px; cursor: pointer; z-index: 10002;';
+    resetBtn.onclick = function() {
+        var camera = document.querySelector('.camera-container');
+        camera.style.transform = 'scale(0.8)';
+    };
+    document.body.appendChild(resetBtn);
+    
+    // Información de la carrera
+    var raceInfo = document.createElement('div');
+    raceInfo.style.cssText = 'position: fixed; top: 100px; left: 20px; background: rgba(255,255,255,0.9); ' +
+                            'padding: 10px; border-radius: 10px; z-index: 10002; font-size: 14px;';
+    raceInfo.innerHTML = '<strong>Carrera de 700 metros</strong><br>' +
+                        '50 caballos compitiendo<br>' +
+                        'Apuesta paga 3:1';
+    document.body.appendChild(raceInfo);
 });

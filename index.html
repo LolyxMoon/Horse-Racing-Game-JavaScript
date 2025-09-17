@@ -3,109 +3,635 @@ Assignment: Javascript Assignment
 Filename: game.html
 @author: KITSANTAS FOTIOS (17421808)
 Date: 30/04/17
+Modified: Para soportar 50 caballos con sistema de cámara
 -->
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Horse Racing</title>
+    <title>Horse Racing - 50 Horses Championship</title>
     <link rel="stylesheet" href="game.css" />
     <script src="game.js"></script>
 </head>
 
 <body>
-    <div id="horse1" class="horse standRight">
-        <div class="rider">
-            <div class="head">
+    <!-- Controles de Cámara -->
+    <div class="camera-controls">
+        <button onclick="setZoom('fit')">Vista Completa</button>
+        <button onclick="setZoom('normal')" class="active">Normal</button>
+        <button onclick="setZoom('close')">Acercar</button>
+        <button onclick="toggleAutoCamera()" id="autocam">Auto Cámara: ON</button>
+    </div>
+
+    <!-- Viewport Principal -->
+    <div class="race-viewport">
+        <div class="camera-container zoom-normal">
+            <!-- 50 Caballos -->
+            <div id="horse1" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">1</span>
             </div>
-            <div class="body">
+
+            <div id="horse2" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">2</span>
+            </div>
+
+            <div id="horse3" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">3</span>
+            </div>
+
+            <div id="horse4" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">4</span>
+            </div>
+
+            <div id="horse5" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">5</span>
+            </div>
+
+            <div id="horse6" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">6</span>
+            </div>
+
+            <div id="horse7" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">7</span>
+            </div>
+
+            <div id="horse8" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">8</span>
+            </div>
+
+            <div id="horse9" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">9</span>
+            </div>
+
+            <div id="horse10" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">10</span>
+            </div>
+
+            <div id="horse11" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">11</span>
+            </div>
+
+            <div id="horse12" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">12</span>
+            </div>
+
+            <div id="horse13" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">13</span>
+            </div>
+
+            <div id="horse14" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">14</span>
+            </div>
+
+            <div id="horse15" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">15</span>
+            </div>
+
+            <div id="horse16" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">16</span>
+            </div>
+
+            <div id="horse17" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">17</span>
+            </div>
+
+            <div id="horse18" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">18</span>
+            </div>
+
+            <div id="horse19" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">19</span>
+            </div>
+
+            <div id="horse20" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">20</span>
+            </div>
+
+            <div id="horse21" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">21</span>
+            </div>
+
+            <div id="horse22" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">22</span>
+            </div>
+
+            <div id="horse23" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">23</span>
+            </div>
+
+            <div id="horse24" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">24</span>
+            </div>
+
+            <div id="horse25" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">25</span>
+            </div>
+
+            <div id="horse26" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">26</span>
+            </div>
+
+            <div id="horse27" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">27</span>
+            </div>
+
+            <div id="horse28" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">28</span>
+            </div>
+
+            <div id="horse29" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">29</span>
+            </div>
+
+            <div id="horse30" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">30</span>
+            </div>
+
+            <div id="horse31" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">31</span>
+            </div>
+
+            <div id="horse32" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">32</span>
+            </div>
+
+            <div id="horse33" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">33</span>
+            </div>
+
+            <div id="horse34" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">34</span>
+            </div>
+
+            <div id="horse35" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">35</span>
+            </div>
+
+            <div id="horse36" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">36</span>
+            </div>
+
+            <div id="horse37" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">37</span>
+            </div>
+
+            <div id="horse38" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">38</span>
+            </div>
+
+            <div id="horse39" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">39</span>
+            </div>
+
+            <div id="horse40" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">40</span>
+            </div>
+
+            <div id="horse41" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">41</span>
+            </div>
+
+            <div id="horse42" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">42</span>
+            </div>
+
+            <div id="horse43" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">43</span>
+            </div>
+
+            <div id="horse44" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">44</span>
+            </div>
+
+            <div id="horse45" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">45</span>
+            </div>
+
+            <div id="horse46" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">46</span>
+            </div>
+
+            <div id="horse47" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">47</span>
+            </div>
+
+            <div id="horse48" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">48</span>
+            </div>
+
+            <div id="horse49" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">49</span>
+            </div>
+
+            <div id="horse50" class="horse standRight">
+                <div class="rider">
+                    <div class="head"></div>
+                    <div class="body"></div>
+                </div>
+                <span class="position-indicator">50</span>
+            </div>
+
+            <!-- Pista de Carreras con Decoraciones -->
+            <div class="track">
+                <!-- Elementos decorativos del fondo -->
+                <div class="sun"></div>
+                <div class="mountains"></div>
+                <div class="crowd"></div>
+                
+                <!-- Tribuna principal -->
+                <div class="grandstand"></div>
+                
+                <!-- Pantalla gigante -->
+                <div class="jumbotron">
+                    <div id="live-position" style="font-size: 1.2vw; margin-top: 20px;">
+                        Esperando inicio...
+                    </div>
+                </div>
+                
+                <!-- Marcadores de distancia -->
+                <div class="distance-marker" style="left: 8vw;" data-distance="0m"></div>
+                <div class="distance-marker" style="left: 36vw;" data-distance="100m"></div>
+                <div class="distance-marker" style="left: 64vw;" data-distance="200m"></div>
+                <div class="distance-marker" style="left: 92vw;" data-distance="300m"></div>
+                <div class="distance-marker" style="left: 120vw;" data-distance="400m"></div>
+                <div class="distance-marker" style="left: 148vw;" data-distance="500m"></div>
+                <div class="distance-marker" style="left: 176vw;" data-distance="600m"></div>
+                <div class="distance-marker" style="left: 220vw;" data-distance="700m"></div>
+                
+                <!-- Banderas decorativas -->
+                <div class="flag" style="left: 7vw; top: 58vh;"></div>
+                <div class="flag" style="left: 35vw; top: 58vh;"></div>
+                <div class="flag" style="left: 63vw; top: 58vh;"></div>
+                <div class="flag" style="left: 91vw; top: 58vh;"></div>
+                <div class="flag" style="left: 119vw; top: 58vh;"></div>
+                <div class="flag" style="left: 147vw; top: 58vh;"></div>
+                <div class="flag" style="left: 175vw; top: 58vh;"></div>
+                <div class="flag" style="left: 203vw; top: 58vh;"></div>
+                <div class="flag" style="left: 221vw; top: 58vh;"></div>
+                
+                <!-- Vallas laterales -->
+                <div class="fence"></div>
+                
+                <!-- Líneas de salida y meta -->
+                <div id="startline"></div>
+                <div id="finishline"></div>
+                
+                <!-- Área de la pista -->
+                <div class="inner">
+                    <!-- Árboles decorativos distribuidos -->
+                    <img src="images/tree.png" class="tree" style="position: absolute; left: 30vw; top: -45vh; z-index: 3;" />
+                    <img src="images/tree.png" class="tree" style="position: absolute; left: 60vw; top: -42vh; z-index: 3;" />
+                    <img src="images/tree.png" class="tree" style="position: absolute; left: 90vw; top: -48vh; z-index: 3;" />
+                    <img src="images/tree.png" class="tree" style="position: absolute; left: 120vw; top: -44vh; z-index: 3;" />
+                    <img src="images/tree.png" class="tree" style="position: absolute; left: 150vw; top: -46vh; z-index: 3;" />
+                    <img src="images/tree.png" class="tree" style="position: absolute; left: 180vw; top: -43vh; z-index: 3;" />
+                    <img src="images/tree.png" class="tree" style="position: absolute; left: 210vw; top: -47vh; z-index: 3;" />
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Panel de Control Principal -->
+    <button id="start">Start Race</button>
 
-    <div id="horse2" class="horse standRight">
-        <div class="rider">
-            <div class="head">
-            </div>
-            <div class="body">
-            </div>
-        </div>
+    <!-- Panel de Apuestas -->
+    <div id="bet">
+        <h3>Place Your Bet</h3>
+        <p>You currently have <span id="funds">100</span></p>
+        
+        <label for="amount">Bet Amount (£)</label>
+        <input type="number" id="amount" value="0" min="0" max="100">
+        
+        <label for="bethorse">Bet on horse:</label>
+        <select id="bethorse">
+            <option value="">Select Horse</option>
+            <option value="1">Horse #1 - Lightning</option>
+            <option value="2">Horse #2 - Thunder</option>
+            <option value="3">Horse #3 - Storm</option>
+            <option value="4">Horse #4 - Blaze</option>
+            <option value="5">Horse #5 - Shadow</option>
+            <option value="6">Horse #6 - Spirit</option>
+            <option value="7">Horse #7 - Arrow</option>
+            <option value="8">Horse #8 - Comet</option>
+            <option value="9">Horse #9 - Flash</option>
+            <option value="10">Horse #10 - Bolt</option>
+            <option value="11">Horse #11 - Rocket</option>
+            <option value="12">Horse #12 - Meteor</option>
+            <option value="13">Horse #13 - Star</option>
+            <option value="14">Horse #14 - Wind</option>
+            <option value="15">Horse #15 - Fire</option>
+            <option value="16">Horse #16 - Ice</option>
+            <option value="17">Horse #17 - Dawn</option>
+            <option value="18">Horse #18 - Dusk</option>
+            <option value="19">Horse #19 - Moon</option>
+            <option value="20">Horse #20 - Sun</option>
+            <option value="21">Horse #21 - Galaxy</option>
+            <option value="22">Horse #22 - Nova</option>
+            <option value="23">Horse #23 - Nebula</option>
+            <option value="24">Horse #24 - Cosmos</option>
+            <option value="25">Horse #25 - Orion</option>
+            <option value="26">Horse #26 - Phoenix</option>
+            <option value="27">Horse #27 - Dragon</option>
+            <option value="28">Horse #28 - Eagle</option>
+            <option value="29">Horse #29 - Falcon</option>
+            <option value="30">Horse #30 - Hawk</option>
+            <option value="31">Horse #31 - Tiger</option>
+            <option value="32">Horse #32 - Lion</option>
+            <option value="33">Horse #33 - Panther</option>
+            <option value="34">Horse #34 - Jaguar</option>
+            <option value="35">Horse #35 - Cheetah</option>
+            <option value="36">Horse #36 - Warrior</option>
+            <option value="37">Horse #37 - Champion</option>
+            <option value="38">Horse #38 - Victory</option>
+            <option value="39">Horse #39 - Glory</option>
+            <option value="40">Horse #40 - Triumph</option>
+            <option value="41">Horse #41 - Legend</option>
+            <option value="42">Horse #42 - Myth</option>
+            <option value="43">Horse #43 - Dream</option>
+            <option value="44">Horse #44 - Magic</option>
+            <option value="45">Horse #45 - Wonder</option>
+            <option value="46">Horse #46 - Marvel</option>
+            <option value="47">Horse #47 - Mystic</option>
+            <option value="48">Horse #48 - Phantom</option>
+            <option value="49">Horse #49 - Ghost</option>
+            <option value="50">Horse #50 - Specter</option>
+        </select>
+        
+        <label for="num_lap">Number of laps</label>
+        <input type="number" id="num_lap" name="num_lap" value="1" min="1" max="5">
     </div>
 
-
-    <div id="horse3" class="horse standRight">
-        <div class="rider">
-            <div class="head">
-            </div>
-            <div class="body">
-            </div>
-        </div>
-    </div>
-
-
-    <div id="horse4" class="horse standRight">
-        <div class="rider">
-            <div class="head">
-            </div>
-            <div class="body">
-            </div>
-        </div>
-    </div>
-
-
-    <div class="track">
-        <div id="startline">
-        </div>
-
-        <div class="inner">
-            <button id="start">Start Race</button><!-- Make it a button -->
-
-            <div id="bet">
-                <p>You currently have <span id="funds">100</span></p>
-                <label>Bet Amount (£)</label>
-                <input type="number" id="amount" value="0"><!-- Add type and default value -->
-                <label>Bet on horse:</label>
-                <select id="bethorse">
-                    <option value="1">White</option>
-                    <option value="2">Blue</option>
-                    <option value="3">Green</option>
-                    <option value="4">Brown</option>
-                </select>
-                <label>Number of lap</label><!-- Add Number of Laps -->
-                <input type="number" id="num_lap" name="num_lap" value="1"><!-- Number of Laps text box to get number of Laps -->
-            </div>
-            <img src="images/tree.png" class="tree" />
-            <br>
-            <table id="results">
+    <!-- Panel de Resultados -->
+    <div id="results">
+        <h3>Race Results</h3>
+        <div id="results-container" style="max-height: 400px; overflow-y: auto;">
+            <table>
                 <thead>
                     <tr>
-                        <th>Results</th>
-                        <th></th>
+                        <th>Position</th>
+                        <th>Horse</th>
+                        <th>Name</th>
+                        <th>Time</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>1st</td>
-                        <td class="result horse1"></td>
-                    </tr>
-                    <tr>
-                        <td>2nd</td>
-                        <td class="result horse2"></td>
-                    </tr>
-                    <tr>
-                        <td>3rd</td>
-                        <td class="result horse3"></td>
-                    </tr>
-                    <tr>
-                        <td>4th</td>
-                        <td class="result horse4"></td>
-                    </tr>
+                <tbody id="results-body">
+                    <!-- Los resultados se generarán dinámicamente -->
                 </tbody>
             </table>
         </div>
+        <div id="bet-result" style="margin-top: 10px; font-weight: bold; display: none;">
+            <!-- Aquí se mostrará si ganó o perdió la apuesta -->
+        </div>
     </div>
-</body>
 
+    <!-- Mini Mapa de Progreso -->
+    <div class="race-minimap">
+        <div class="minimap-track" id="minimap">
+            <div style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); font-size: 10px;">START</div>
+            <div style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 10px;">FINISH</div>
+            <!-- Los puntos de los caballos se generarán dinámicamente -->
+        </div>
+    </div>
+
+    <!-- Scripts básicos para funcionalidad de cámara -->
+    <script>
+        // Función para cambiar zoom
+        function setZoom(level) {
+            const camera = document.querySelector('.camera-container');
+            camera.className = 'camera-container zoom-' + level;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.camera-controls button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Toggle de cámara automática
+        let autoCameraEnabled = true;
+        function toggleAutoCamera() {
+            autoCameraEnabled = !autoCameraEnabled;
+            const btn = document.getElementById('autocam');
+            const camera = document.querySelector('.camera-container');
+            
+            if (autoCameraEnabled) {
+                camera.classList.add('camera-follow');
+                btn.textContent = 'Auto Cámara: ON';
+            } else {
+                camera.classList.remove('camera-follow');
+                btn.textContent = 'Auto Cámara: OFF';
+            }
+        }
+
+        // Inicializar mini-mapa con puntos para cada caballo
+        window.addEventListener('DOMContentLoaded', function() {
+            const minimap = document.getElementById('minimap');
+            for (let i = 1; i <= 50; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'minimap-horse';
+                dot.id = 'mini-horse-' + i;
+                dot.style.left = '0%';
+                dot.title = 'Horse #' + i;
+                minimap.appendChild(dot);
+            }
+        });
+    </script>
+</body>
 </html>
